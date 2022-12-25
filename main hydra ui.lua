@@ -1230,7 +1230,7 @@ for i,v in pairs(getgc(true)) do
     end
 end
 
-local weapon
+local Weapon
 task.spawn(function()
     while task.wait(KillAuraHitCooldown) do
         -- ty len for the arrow redirection
@@ -1239,23 +1239,42 @@ task.spawn(function()
         -- ty len
         if killaura then
             pcall(function()
-                table.foreach(Players.LocalPlayer.Character:GetChildren(), function(i,v)
-                    if v:IsA("Tool") and v:FindFirstChild("Hitboxes") then
-                        weapon = v
+                Closest = getClosest()
+                for i, v in pairs(Players.LocalPlayer.Character:GetChildren()) do
+                    if v:IsA("Tool") then
+                        if v:FindFirstChild("Hitboxes") ~= nil then
+                            Weapon = v
+                        end
                     end
-                end)
+                end
 
-                table.foreach(Players.LocalPlayer.Backpack:GetChildren(), function(i,v)
-                    if v:IsA("Tool") and v:FindFirstChild("Hitboxes") then
-                        weapon = v
-                    end
-                end)
+                local rayOrigin = Players.LocalPlayer.Character.HumanoidRootPart.Position
+                local rayDirection = Vector3.new(0, 0, 5)
+                local raycastParams = RaycastParams.new()
+                raycastParams.IgnoreWater = true
+                raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+                local raycastResult = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+                local args1 = {
+                    [1] = Weapon,
+                    [2] = math.random(1, 4)
+                }
+
+                local args = {
+                    [1] = Weapon,
+                    [2] = Closest.Character.Head,
+                    [3] = Weapon.Hitboxes.Hitbox,
+                    [4] = Closest.Character.Head.Position,
+                    [5] = Closest.Character.Head.CFrame:ToObjectSpace(
+                        CFrame.new(Closest.Character.Head.Position)
+                    ),
+                    [6] = raycastResult
+                }
 
                 local c_player = getClosest()
-                    game:GetService("ReplicatedStorage").Communication.Events.MeleeSwing:FireServer(weapon, 1)
-                    game:GetService("ReplicatedStorage").Communication.Events.MeleeDamage:FireServer(weapon,c_player.Character:FindFirstChild("HumanoidRootPart"),weapon.Hitboxes.Hitbox,c_player.Character:FindFirstChild("HumanoidRootPart").Position)
-                    game:GetService("ReplicatedStorage").Communication.Events.MeleeDamage:FireServer(weapon,c_player.Character:FindFirstChild("HumanoidRootPart"),weapon.Hitboxes.Hitbox,c_player.Character:FindFirstChild("HumanoidRootPart").Position)
-            end)
+                    game:GetService("ReplicatedStorage").Communication.Events.MeleeSwing:FireServer(unpack(args1))
+                    game:GetService("ReplicatedStorage").Communication.Events.MeleeDamage:FireServer(unpack(args))                    
+                    game:GetService("ReplicatedStorage").Communication.Events.MeleeDamage:FireServer(unpack(args))
+                end)
         end
 
         -- silent aim pog
