@@ -5504,4 +5504,12 @@ function UILibrary.Section:Dropdown(sett, callback)
     return meta
 end
 
+local frame = game:GetService("CoreGui"):FindFirstChild("Window", true)
+game:GetService("UserInputService").InputBegan:Connect(function(Input, IsTyping)
+    if IsTyping then return end
+    if Input.KeyCode == Enum.KeyCode.RightShift then
+        frame.Visible = not frame.Visible
+    end
+end)
+
 return UILibrary
