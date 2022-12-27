@@ -123,6 +123,7 @@ local walkspeedenabled = false
 local silentaimhitchance = 100 -- in percents
 local instantcharge = false
 local boxesenabled = false
+local targetStrafe = false
 
 getgenv().TracerColor = Color3.fromRGB(99, 13, 197)
 
@@ -742,6 +743,16 @@ combatKillauraSection:Toggle({
     end
 )
 
+combatKillauraSection:Toggle({
+    Title = "target strafe",
+    Description = "orbits around closest player",
+    Default = false
+    },
+    function(val)
+        targetStrafe = val
+    end
+)
+
 combatSilentaimSection:Toggle({
     Title = "aimbot",
     Default = false
@@ -1311,6 +1322,7 @@ task.spawn(function()
 end)
 
 -- the main loop for shit
+local angle = 0
 task.spawn(function()
     RunService.Stepped:Connect(function()
 
@@ -1381,6 +1393,15 @@ task.spawn(function()
                 if v:IsA("BasePart") then
                     v.CanCollide = false
                 end
+            end
+        end
+
+        if targetStrafe then
+            local origin = getClosest().Character.HumanoidRootPart.CFrame
+
+            if (Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position - origin.Position).Magnitude <= 50 then
+                angle = (angle + 0.04 * math.pi) % (2 * math.pi);
+                Players.LocalPlayer.Character.HumanoidRootPart.CFrame = origin * CFrame.new(math.cos(angle) * 6, 0, math.sin(angle) * 6);
             end
         end
         
