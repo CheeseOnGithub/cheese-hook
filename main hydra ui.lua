@@ -136,7 +136,7 @@ for i,v in pairs(getgc(true)) do
     end
 
     if typeof(v) == 'table' and rawget(v, 'getIsBodyMoverCreatedByGame') then
-        v.getIsBodyMoverCreatedByGame = function(among)
+        v.getIsBodyMoverCreatedByGame = function()
             return true
         end
    end
@@ -149,15 +149,17 @@ for i,v in pairs(getgc(true)) do
     if typeof(v) == "table" and rawget(v, "Remote") then
         v.Remote.Name = v.Name
     end
-
-    if typeof(v) == "table" then
-        if rawget(v,"punish") then
-            local old; old = hookfunction(v.punish, function(...)
-                error("lolololo")
-            end)
-        end
-    end
 end
+
+local modules = {}
+for i,v in pairs(rawget(require(game:GetService("ReplicatedStorage").Framework.Nevermore), "_lookupTable")) do
+    modules[i] = require(v)
+end
+
+
+hookfunction(modules["AntiCheatHandlerClient"]._startModule, function(...)
+    return
+end)
 
 table.foreach(remotes_table, function(i,v)
     if rawget(v, "Remote") then
