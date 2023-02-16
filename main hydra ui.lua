@@ -322,14 +322,14 @@ function NOFLY()
 end
 
 
-firehit = function(character,arrow)
+local function firehit(character)    
     local fakepos = character[hitpart].Position + Vector3.new(math.random(1,5),math.random(1,5),math.random(1,5))
     local args = {
         [1] = Players.LocalPlayer.Character:FindFirstChildOfClass("Tool"),
         [2] = character.Head,
         [3] = fakepos,
         [4] = character.Head.CFrame:ToObjectSpace(CFrame.new(fakepos)),
-        [5] = fakepos * Vector3.new(math.random(1,5),math.random(1,5),math.random(1,5)),
+        [5] = math.random(0,1),
         [6] = tostring(arrowsshooted)
     }
     getRemote("RangedHit"):FireServer(unpack(args))
