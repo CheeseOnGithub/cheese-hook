@@ -17,6 +17,17 @@ for i, v in pairs(getconnections(lplr.Character.Humanoid:GetPropertyChangedSigna
 end
 
 
+local namecall;namecall = hookmetamethod(game,'__namecall', function(self, ...)
+    local method = getnamecallmethod()
+    local args = {...}
+    
+    if method == "FireServer" and tostring(self) == "ProjectileInflict" and getcallingscript().Name == "CharacterController" then
+        return wait(9e9)
+    end
+
+    return namecall(self, ...)
+end)
+
 -- i store tabs in a table because its easier to use
 local ui = {
     toggles = {},
