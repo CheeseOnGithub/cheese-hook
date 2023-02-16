@@ -127,29 +127,38 @@ local targetStrafe = false
 
 getgenv().TracerColor = Color3.fromRGB(99, 13, 197)
 
--- Client side anticheat bypass
 for i,v in pairs(getgc(true)) do
-    if typeof(v) == "table" and rawget(v, "kick") then
-        v.kick =  function()
-            return
-        end
-    end
-
-    if typeof(v) == 'table' and rawget(v, 'getIsBodyMoverCreatedByGame') then
-        v.getIsBodyMoverCreatedByGame = function()
+    if typeof(v) ~= 'table' then continue end
+    if rawget(v, 'getIsBodyMoverCreatedByGame') then
+        v.getIsBodyMoverCreatedByGame = function(gg)
             return true
         end
-   end
-   if typeof(v) == "table" and rawget(v, "randomDelayKick") then
-        v.randomDelayKick = function()
-            return wait(9e9)
-        end
+        
     end
-
-    if typeof(v) == "table" and rawget(v, "Remote") then
+    if rawget(v, 'connectCharacter') then
+         v.connectCharacter = function(gg) return wait(9e9) end
+    end
+    if rawget(v,'Remote')  then
+        for i,v in pairs(getconnections(v.Remote:GetPropertyChangedSignal('Name'))) do
+            v:Disable()
+        end
         v.Remote.Name = v.Name
     end
+
+    if rawget(v, "punish") then
+        local hf;hf=hookfunction(v.punish, function(...)
+            return
+        end)
+    end
 end
+local old_namecall;old_namecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
+    local args = {...}
+    local method = getnamecallmethod()
+    if method == 'Kick' then return wait(9e9) end
+    if self.Name == 'BAC' then return end
+    if self.Name == 'ExportClientErrors' then return end
+    return old_namecall(self,unpack(args))
+end))
 
 local modules = {}
 for i,v in pairs(rawget(require(game:GetService("ReplicatedStorage").Framework.Nevermore), "_lookupTable")) do
@@ -160,30 +169,6 @@ end
 hookfunction(modules["AntiCheatHandlerClient"]._startModule, function(...)
     return
 end)
-
-table.foreach(remotes_table, function(i,v)
-    if rawget(v, "Remote") then
-        remotes[rawget(v, "Remote")] = i
-    end
-end)
-
-table.foreach(events_table, function(i,v)
-    if rawget(v, "Remote") then
-        remotes[rawget(v, "Remote")] = i
-    end
-end)
-
-
--- the retards at combat warriors detect if you make changes to the names so this is the second best method
-local pog
-pog = hookmetamethod(game, "__index", function(self, key)
-    if (key == "Name" or key == "name") and remotes[self] then
-       return remotes[self]
-    end
-
-    return pog(self, key)
-end)
-
 
 local function getRemote(name)
     return game:GetService("ReplicatedStorage").Communication.Events[name]
@@ -335,25 +320,6 @@ function NOFLY()
     end
     pcall(function() workspace.CurrentCamera.CameraType = Enum.CameraType.Custom end)
 end
-
-local function lookat(character)
-spawn(function()
-    for i=0, 1, 0.1  do
-        local goal = workspace.CurrentCamera.CFrame:Lerp(CFrame.lookAt(workspace.CurrentCamera.CFrame.Position, character.HumanoidRootPart.Position), i)
-        workspace.CurrentCamera.CFrame = goal
-        task.wait()
-    end
-end)
-end
-
-local function islooking(chr, sensitivity)
-return chr.HumanoidRootPart.CFrame.LookVector:Dot(Players.LocalPlayer.Character.HumanoidRootPart.Position) >= sensitivity
-end
-
-local function keyclick(enum)
-    local vim = game:GetService("VirtualInputManager")
-    return vim:SendKeyEvent(true, enum, false, game) and task.wait() and vim:SendKeyEvent(false, enum, false, game)
- end
 
 
 firehit = function(character,arrow)
