@@ -138,12 +138,7 @@ for i,v in pairs(getgc(true)) do
     if rawget(v, 'connectCharacter') then
          v.connectCharacter = function(gg) return wait(9e9) end
     end
-    if rawget(v,'Remote')  then
-        for i,v in pairs(getconnections(v.Remote:GetPropertyChangedSignal('Name'))) do
-            v:Disable()
-        end
-        v.Remote.Name = v.Name
-    end
+    
 
     if rawget(v, "punish") then
         local hf;hf=hookfunction(v.punish, function(...)
