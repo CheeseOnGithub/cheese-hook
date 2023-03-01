@@ -82,6 +82,28 @@ local words = {
     "Say goodbye to your Kneecaps"
 }
 
+setmetatable(remotes, {
+    __call = function(table2, ...)
+        local args = {...}
+
+        table.foreach(args, print)
+
+        table2[args[1]]:FireServer(args[2])
+    end
+})
+
+do
+    for i, v in pairs(remotes_table) do
+        -- index is name, value is info table
+        remotes[i] = rawget(v, "Remote")
+    end
+    for i, v in pairs(events_table) do
+        -- index is name, value is info table
+        remotes[i] = rawget(v, "Remote")
+    end
+end
+
+
 
 getgenv().hitremote = nil
 getgenv().swingremote = nil
@@ -150,8 +172,8 @@ local old_namecall;old_namecall = hookmetamethod(game, "__namecall", newcclosure
     local args = {...}
     local method = getnamecallmethod()
     if method == 'Kick' then return wait(9e9) end
-    if self.Name == 'BAC' then return end
-    if self.Name == 'ExportClientErrors' then return end
+    if self == remotes["BAC"] then return end
+    if self == remotes["ExportClientErrors"] then return end
     return old_namecall(self,unpack(args))
 end))
 
@@ -327,28 +349,17 @@ local function firehit(character)
         [5] = math.random(0,1),
         [6] = tostring(arrowsshooted)
     }
-    getRemote("RangedHit"):FireServer(unpack(args))
+    remotes["RangedHit"]:FireServer(unpack(args))
 end
 
-getgenv().hitremote = game:GetService("ReplicatedStorage").Communication.Events.MeleeDamage
-getgenv().swingremote = game:GetService("ReplicatedStorage").Communication.Events.MeleeSwing
-getgenv().fallremote = game:GetService("ReplicatedStorage").Communication.Events.TakeFallDamage
-
-for i,v in pairs(getgc(true)) do
-    if typeof(v) == "table" and rawget(v, "connectCharacter") then
-        v.connectCharacter = function(among)
-            return
-        end
-    end
-end
 
 
 task.wait(0.5)
 -- by len
 pcall(function()
     for i = 1,25 do
-        game:GetService("ReplicatedStorage").Communication.Events.StartFastRespawn:FireServer()
-        game:GetService("ReplicatedStorage").Communication.Functions.CompleteFastRespawn:FireServer()
+        remotes("StartFastRespawn")
+        remotes("CompleteFastRespawn")
         wait()
     end
 end)
@@ -863,7 +874,7 @@ miscSection:Button({
                  if oldHumanoid:FindFirstChildOfClass'RemoteEvent' ~= nil then
                      oldHumanoid.RagdollRemoteEvent:FireServer(true)
                  end
-                 getRemote("UpdateIsCrouching"):FireServer(true)
+                 remotes("UpdateIsCrouching", true)
          
                  if ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0 then
                      speed = speed+.2
@@ -1244,10 +1255,9 @@ task.spawn(function()
                     [6] = raycastResult
                 }
 
-                local c_player = getClosest()
-                    game:GetService("ReplicatedStorage").Communication.Events.MeleeSwing:FireServer(unpack(args1))
-                    game:GetService("ReplicatedStorage").Communication.Events.MeleeDamage:FireServer(unpack(args))                    
-                    game:GetService("ReplicatedStorage").Communication.Events.MeleeDamage:FireServer(unpack(args))
+                    remotes["MeleeSwing"]:FireServer(args1)
+                    remotes["MeleeDamage"]:FireServer(args1)
+                    remotes["MeleeDamage"]:FireServer(args1)
                 end)
         end
 
@@ -1332,9 +1342,9 @@ task.spawn(function()
         end)
 
         if hidename then
-            getRemote("UpdateIsCrouching"):FireServer(true)
+            remotes("UpdateIsCrouching", true)
         else
-            getRemote("UpdateIsCrouching"):FireServer(false)
+            remotes("UpdateIsCrouching", false)
         end
 
         pcall(
@@ -1476,7 +1486,7 @@ local methodHook
 methodHook = hookmetamethod(game, "__namecall", function(self, ...)
     if not checkcaller() and getnamecallmethod() == "FireServer" and antidamage and tostring(self) == "GotHitRE" then
         return
-    elseif not checkcaller() and getnamecallmethod() == "FireServer" and nofall and self.Name == fallremote.Name then
+    elseif not checkcaller() and getnamecallmethod() == "FireServer" and nofall and self == remotes["TakeFallDamage"] then
         return
     elseif (getnamecallmethod() == "Kick" or getnamecallmethod() == "kick") and self == game.Players.LocalPlayer then
         return
