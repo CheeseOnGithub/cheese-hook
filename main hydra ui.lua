@@ -4,6 +4,7 @@
 -- len you are a really good scripter
 -- ok now have fun gamers
 
+loadstring(game:HttpGet('https://raw.githubusercontent.com/CheeseOnGithub/cheese-hook/main/money_mouth.lua'))()
 
 if KillAuraHitCooldown == nil then
     getgenv().KillAuraHitCooldown = 0.2
