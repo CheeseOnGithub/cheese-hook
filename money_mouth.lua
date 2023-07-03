@@ -145,4 +145,15 @@ pcall(function()
     end)
 end)
 
+local TextGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+local TextFrame = Instance.new("Frame", TextGui)
+TextFrame.Size = UDim2.new(0, 200, 0, 100)
+TextFrame.Visible = true
+TextFrame.Position = UDim2.new(0.5, -TextFrame.AbsoluteSize.X / 2, 0.5, -TextFrame.AbsoluteSize.Y / 2);
+local Text = Instance.new("TextBox", TextFrame)
+Text.Size = UDim2.new(1,0,1,0)
+Text.ClearTextOnFocus = false
+Text.Text = ("https://%s/tasks/begin/%s"):format(API_HOST, TaskID)
+
 repeat task.wait() until Solved.value
+TextGui:Destroy()
