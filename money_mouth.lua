@@ -90,4 +90,4 @@ warn("Finished at", os.date("%c"))
 warn("Authentication Token", nTask.token)
 warn("Authentication Token Expire Time", TOKEN_EXPIRE_TIME)
 
-Text:Destroy()
+TextGui:Destroy()
