@@ -150,6 +150,7 @@ local targetStrafe = false
 
 getgenv().TracerColor = Color3.fromRGB(99, 13, 197)
 
+-- made by samuel 
 do
     local anticheats = {
         'AntiBodyMoverClient',
