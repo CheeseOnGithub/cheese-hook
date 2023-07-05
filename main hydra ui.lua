@@ -150,6 +150,58 @@ local targetStrafe = false
 
 getgenv().TracerColor = Color3.fromRGB(99, 13, 197)
 
+do
+    local anticheats = {
+        'AntiBodyMoverClient',
+        'AntiFlyClient',
+        'AntiInfJumpClient',
+        'AntiInjectClient',
+        'AntiSpeedClient',
+        'SanityChecksClient',
+        'AntiCheatHandlerClient',
+        'AntiCheatHandler',
+        'LightingUtil'
+    }
+    local reg = getreg()
+    for i=1,#reg do -- anti sanity checks
+        local thread = reg[i]
+        if not (type(thread) == 'thread') then continue end
+        
+        local source = debug.info(thread,1,'s')
+        if source then
+            for i,v in pairs(anticheats) do
+                if source:sub(-v:len(),-1) == v then
+                    task.cancel(thread)
+                end
+            end
+        end
+    end
+    for i,connection in pairs(getconnections(Players.LocalPlayer.CharacterAdded)) do
+        pcall(function()
+            local src = debug.getinfo(connection.Function,'s').source
+            if src:sub(-22,-1) == 'AntiCheatHandlerClient' then
+                connection:Disable()
+            end
+        end)
+    end
+    if Players.LocalPlayer.Character then -- additional bypass i need
+        for i,connection in pairs(getconnections(Players.LocalPlayer.CharacterRemoving)) do
+            pcall(function()
+                local src = debug.getinfo(connection.Function,'s').source
+                if src:sub(-22,-1) == 'AntiCheatHandlerClient' then
+                    local maid = getupvalue(connection.Function,1)
+                    for i,v in pairs(maid._tasks) do
+                        if typeof(v) == 'table' then
+                            v:Destroy()
+                        end
+                    end
+                end
+            end)
+        end
+    end
+    
+end
+
 for i,v in pairs(getgc(true)) do
     if typeof(v) ~= 'table' then continue end
     if rawget(v, 'getIsBodyMoverCreatedByGame') then
